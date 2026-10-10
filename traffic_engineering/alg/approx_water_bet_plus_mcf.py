@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 
 import numpy as np
-from gurobi import *
+from gurobipy import *
 
 from alg import approx_water_bet, approx_water_plus_mcf, waterfilling_utils
 from ncflow.lib import problem

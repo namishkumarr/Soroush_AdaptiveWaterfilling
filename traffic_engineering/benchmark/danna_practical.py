@@ -10,19 +10,19 @@ from ncflow.lib.problem import Problem
 
 
 TM_MODEL_LIST = [
-    'uniform',
-    'bimodal',
-    'gravity',
+    # 'uniform',
+    # 'bimodal',
+    # 'gravity',
     'poisson-high-inter',
     # 'poisson-high-intra',
 ]
 TOPO_NAME_LIST = [
     'Uninett2010.graphml',
-    'Cogentco.graphml',
-    'GtsCe.graphml',
-    'UsCarrier.graphml',
-    'Colt.graphml',
-    'TataNld.graphml',
+    # 'Cogentco.graphml',
+    # 'GtsCe.graphml',
+    # 'UsCarrier.graphml',
+    # 'Colt.graphml',
+    # 'TataNld.graphml',
     # 'Kdl.graphml',
 ]
 
@@ -72,11 +72,14 @@ if __name__ == "__main__":
     for num_paths in num_path_list:
         for topo_name in TOPO_NAME_LIST:
             for tm_model in TM_MODEL_LIST:
-                fnames = utils.find_topo_tm_fname(topo_name, tm_model)
+                fnames = []
+                for sf in [1.0, 4.0, 16.0, 32.0, 64.0, 128.0]:
+                    matches = utils.find_topo_tm_scale_factor_fname(topo_name, tm_model, sf)
+                    fnames.append(matches[0])   # first seed only
                 example_file = fnames[0]
                 problem = Problem.from_file(example_file[3], example_file[4])
                 path_output = shortest_paths.all_pair_shortest_path_multi_processor(problem.G, problem.edge_idx,
-                                                                                    k=num_paths, number_processors=32)
+                                                                                    k=num_paths, number_processors=6)
                 paths, path_edge_idx_mapping, _, _, _ = path_output
 
                 for file_name in fnames:
@@ -86,7 +89,7 @@ if __name__ == "__main__":
                         continue
                     problem = Problem.from_file(file_name[3], file_name[4])
                     utils.revise_list_commodities(problem)
-                    per_flow_log_file_name = file_name[4].split("/")[-1][:-4] + f"_num_paths_{num_paths}"
+                    per_flow_log_file_name = os.path.basename(file_name[4])[:-4] + f"_num_paths_{num_paths}"
                     print("=" * 5, file_name, per_flow_log_file_name, "=" * 5)
                     danna_output = compute_danna(feasibility_grb_method, mcf_grb_method, link_cap, U, problem, paths)
 
